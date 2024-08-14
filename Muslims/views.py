@@ -1,10 +1,12 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from .serializers import MuslimSerializer,UserSerializer
+from rest_framework.decorators import api_view, permission_classes
+from .serializers import MuslimSerializer,UserSerializer,LoginSerializer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
 from .models import Muslim
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken 
 
 @api_view(["GET"])
 def list(request):
@@ -33,3 +35,28 @@ def register(request):
             return Response({"Error":"Try better password"})
     else: return Response({"Error":"Data error"})
     return Response(muslimserializer.data)
+
+@api_view(['POST'])
+def login(request):
+    print(request.data)
+    serializer = LoginSerializer(data = request.data)
+    if serializer.is_valid():
+        user = authenticate(username = request.data['username'],password = request.data['password'])
+        if user is None:
+            return Response({"Error":"Try again"})
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            "Success":"You are logged in"
+        })
+    return Response({"Error":"Data error"})
+
+@api_view(['GET'])  
+def loggedin(request):
+    if request.user.is_authenticated:
+        return Response({"Success":f"You are still logged in {request.user.username}"})
+    else:
+        return Response({"Success":"You are not logged in"})
+    
+        
