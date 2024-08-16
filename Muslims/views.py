@@ -49,7 +49,7 @@ def login(request):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             "Success":"You are logged in"
-        },status.HTTP_200_OK)
+        },status = status.HTTP_200_OK)
     return Response({"Error":"Data error"})
 
 @api_view(['GET'])  
