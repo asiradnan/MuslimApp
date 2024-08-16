@@ -44,7 +44,7 @@ def login(request):
     if serializer.is_valid():
         user = authenticate(username = request.data['username'],password = request.data['password'])
         if user is None:
-            return Response({"Error":"Try again"})
+            return Response({"Error":"Try again"},status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
