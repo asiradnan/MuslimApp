@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from .serializers import MuslimSerializer,UserSerializer,LoginSerializer
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -32,7 +33,7 @@ def register(request):
             except:
                 return Response({"Error":"Data error"})
         except:
-            return Response({"Error":"Try better password"})
+            return Response({"Error":"Try better password"},status=status.HTTP_401_UNAUTHORIZED)
     else: return Response({"Error":"Data error"})
     return Response(muslimserializer.data)
 
