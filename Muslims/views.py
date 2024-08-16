@@ -8,6 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from .models import Muslim
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken 
+from django.contrib.auth import logout
 
 @api_view(["GET"])
 def list(request):
@@ -52,11 +53,21 @@ def login(request):
         },status = status.HTTP_200_OK)
     return Response({"Error":"Data error"})
 
+@api_view(['POST'])  
+def log_out(request):
+    try:
+        refresh_token = request.data["refresh"]
+        token = RefreshToken(refresh_token)
+        token.blacklist() 
+        return Response({"message": "Logged out successfully"}, status=status.HTTP_205_RESET_CONTENT)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
 @api_view(['GET'])  
 def loggedin(request):
     if request.user.is_authenticated:
         return Response({"Success":f"You are still logged in {request.user.username}"})
     else:
-        return Response({"Success":"You are not logged in"})
+        return Response({"Success":"You are not logged in"},status = status.HTTP_401_UNAUTHORIZED)
     
         
