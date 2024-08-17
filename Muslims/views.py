@@ -36,7 +36,7 @@ def register(request):
         except:
             return Response({"Error":"Try better password"},status=status.HTTP_401_UNAUTHORIZED)
     else: return Response({"Error":"Data error"})
-    return Response(muslimserializer.data)
+    return Response({"Success: Created Account Successfully!"})
 
 @api_view(['POST'])
 def login(request):
@@ -44,7 +44,7 @@ def login(request):
     if serializer.is_valid():
         user = authenticate(username = request.data['username'],password = request.data['password'])
         if user is None:
-            return Response({"Error":"Try again"},status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"Error":"Incorrect Credentials"},status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
@@ -64,9 +64,17 @@ def log_out(request):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])  
-def loggedin(request):
+def user_detail(request):
     if request.user.is_authenticated:
-        return Response({"Success":f"You are still logged in {request.user.username}"})
+        userserializer =  UserSerializer(request.user)
+        muslimserializer =  MuslimSerializer(Muslim.objects.get(user = request.user))
+        data = {}
+        for key in userserializer.data.keys():
+            data[key]=userserializer[key].value
+        for key in muslimserializer.data.keys():
+            data[key]=muslimserializer[key].value
+        del data["password"]
+        return Response(data)
     else:
         return Response({"Success":"You are not logged in"},status = status.HTTP_401_UNAUTHORIZED)
     
