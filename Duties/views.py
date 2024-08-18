@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Task
 from .serializers import TaskSerializer
+from rest_framework import status
 
 
 
@@ -37,3 +38,22 @@ def task_update(request,id):
     if serializer.is_valid():
         serializer.save()
     return Response(serializer.data)
+
+@api_view(["GET"])
+def mytask(request):
+    if request.user.is_authenticated:
+        muslim = request.user.muslim
+        if muslim.is_male:
+            if muslim.is_married:
+                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age)
+            else:
+                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age)
+        else:
+            if muslim.is_married:
+                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age)
+            else:
+                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age)
+        serializer = TaskSerializer(objects, many = True)
+        return Response(serializer.data)
+    else: 
+        return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)

@@ -10,6 +10,11 @@ class Task(models.Model):
     title = models.CharField(max_length=150)
     detail = models.CharField(max_length=300) #name
     type=models.CharField(choices=task_type,max_length=25)
+    for_male = models.BooleanField()
+    for_female = models.BooleanField()
+    min_age = models.PositiveIntegerField()
+    for_married = models.BooleanField()
+    for_unmarried = models.BooleanField()
     frequency  = models.PositiveIntegerField()
     points = models.IntegerField()
 
@@ -20,6 +25,7 @@ class CheckList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
     last_done = models.DateTimeField() 
+    #freq
 
 class References(models.Model):
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)

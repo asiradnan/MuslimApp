@@ -46,11 +46,7 @@ def login(request):
         if user is None:
             return Response({"Error":"Incorrect Credentials"},status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            "Success":"You are logged in"
-        },status = status.HTTP_200_OK)
+        return Response({'refresh': str(refresh),'access': str(refresh.access_token),},status = status.HTTP_200_OK)
     return Response({"Error":"Data error"})
 
 @api_view(['POST'])  
