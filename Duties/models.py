@@ -15,7 +15,6 @@ class Task(models.Model):
     min_age = models.PositiveIntegerField()
     for_married = models.BooleanField()
     for_unmarried = models.BooleanField()
-    frequency  = models.PositiveIntegerField()
     points = models.IntegerField()
 
     def __str__(self):
@@ -23,9 +22,12 @@ class Task(models.Model):
     
 class CheckList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
-    last_done = models.DateTimeField() 
-    #freq
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    date = models.DateField() 
+    freqency = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return self.user.first_name + " " + self.user.last_name + " : " + self.task.title
 
 class References(models.Model):
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)

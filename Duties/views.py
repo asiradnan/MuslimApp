@@ -1,13 +1,9 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Task
+from .models import Task, CheckList
 from .serializers import TaskSerializer
 from rest_framework import status
-
+from django.utils import timezone
 
 
 @api_view(['GET'])
@@ -57,3 +53,16 @@ def mytask(request):
         return Response(serializer.data)
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(["GET"])
+def done(request, id):
+    if request.user.is_authenticated:
+        task = Task.objects.get(id=id)
+        taskcheck,ok = CheckList.objects.get_or_create(task=task,user=request.user,date=timezone.now().date())
+        if ok==False: 
+            taskcheck.freqency+=1
+            taskcheck.save()
+        return Response({"Success":"Completed the task"})
+    else: 
+        return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+    
