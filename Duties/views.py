@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Task, CheckList
-from .serializers import TaskSerializer
+from .serializers import TaskSerializer, ChecklistSerializer
 from rest_framework import status
 from django.utils import timezone
 
@@ -39,16 +39,17 @@ def task_update(request,id):
 def mytask(request):
     if request.user.is_authenticated:
         muslim = request.user.muslim
+        tasks_in_checklist = CheckList.objects.filter(user=request.user, date=timezone.now().date()).values_list('task', flat=True)
         if muslim.is_male:
             if muslim.is_married:
-                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age)
+                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
             else:
-                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age)
+                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
         else:
             if muslim.is_married:
-                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age)
+                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
             else:
-                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age)
+                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
         serializer = TaskSerializer(objects, many = True)
         return Response(serializer.data)
     else: 
@@ -65,4 +66,20 @@ def done(request, id):
         return Response({"Success":"Completed the task"})
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+    
+@api_view(['GET'])
+def myhistory(request):
+    if request.user.is_authenticated:
+        objects = CheckList.objects.filter(user = request.user)
+        serializer = ChecklistSerializer(objects,many = True)
+        print(serializer.data)
+        data = {}
+        for item in serializer.data:
+            if item['date'] in data:
+                data[item['date']].append(item)
+            else:
+                data[item['date']]=[item]
+        return Response(data)
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+    
     
