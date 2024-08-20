@@ -9,4 +9,4 @@ class TaskSerializer(serializers.ModelSerializer):
 class ChecklistSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckList
-        fields = ['task',"date","freqency"]
+        fields = ['task',"date","frequency"]

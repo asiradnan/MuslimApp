@@ -20,20 +20,20 @@ def task(request,id):
         serializer = TaskSerializer(task, many=False)
         return Response(serializer.data)
 
-@api_view(['POST'])
-def task_add(request):
-    serializer = TaskSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-    return Response(serializer.data)
+# @api_view(['POST'])
+# def task_add(request):
+#     serializer = TaskSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#     return Response(serializer.data)
 
-@api_view(['POST'])
-def task_update(request,id):
-    task = Task.objects.get(id=id)
-    serializer = TaskSerializer(instance=task,data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-    return Response(serializer.data)
+# @api_view(['POST'])
+# def task_update(request,id):
+#     task = Task.objects.get(id=id)
+#     serializer = TaskSerializer(instance=task,data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#     return Response(serializer.data)
 
 @api_view(["GET"])
 def mytask(request):
@@ -72,7 +72,6 @@ def myhistory(request):
     if request.user.is_authenticated:
         objects = CheckList.objects.filter(user = request.user)
         serializer = ChecklistSerializer(objects,many = True)
-        print(serializer.data)
         data = {}
         for item in serializer.data:
             if item['date'] in data:
