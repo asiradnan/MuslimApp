@@ -24,7 +24,7 @@ class CheckList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     date = models.DateField() 
-    freqency = models.PositiveIntegerField(default=1)
+    frequency = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name + " : " + self.task.title
