@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Task,CheckList
+from .models import Task,CheckList,Feedback
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,4 +9,9 @@ class TaskSerializer(serializers.ModelSerializer):
 class ChecklistSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckList
-        fields = ['task',"date","frequency"]
+        fields = ["task","date","frequency"]
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ["detail","book","number"]

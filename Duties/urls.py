@@ -10,4 +10,5 @@ urlpatterns = [
     path("mytask/",views.mytask,name="mytask"),
     path("done/<int:id>",views.done,name="done"),
     path("myhistory",views.myhistory,name="myhistory"),
+    path("feedback",views.feedback,name="feedback"),
 ]

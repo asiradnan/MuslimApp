@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Task, CheckList
-from .serializers import TaskSerializer, ChecklistSerializer
+from .models import Task, CheckList, Feedback
+from .serializers import TaskSerializer, ChecklistSerializer, FeedbackSerializer
 from rest_framework import status
 from django.utils import timezone
 
@@ -19,21 +19,6 @@ def task(request,id):
         task = Task.objects.get(id=id)
         serializer = TaskSerializer(task, many=False)
         return Response(serializer.data)
-
-# @api_view(['POST'])
-# def task_add(request):
-#     serializer = TaskSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#     return Response(serializer.data)
-
-# @api_view(['POST'])
-# def task_update(request,id):
-#     task = Task.objects.get(id=id)
-#     serializer = TaskSerializer(instance=task,data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#     return Response(serializer.data)
 
 @api_view(["GET"])
 def mytask(request):
@@ -80,5 +65,42 @@ def myhistory(request):
                 data[item['date']]=[item]
         return Response(data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def feedback(request):
+    if request.user.is_authenticated:
+        serializer = FeedbackSerializer(data = request.data)
+        if serializer.is_valid():
+            x = Feedback.objects.create(sender = request.user, detail = request.data['detail'],book = request.data['book'],number = request.data['number'])
+            x.save()
+            return Response({"Success":"Feedback received!"})
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @api_view(['POST'])
+# def task_add(request):
+#     serializer = TaskSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#     return Response(serializer.data)
+
+# @api_view(['POST'])
+# def task_update(request,id):
+#     task = Task.objects.get(id=id)
+#     serializer = TaskSerializer(instance=task,data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#     return Response(serializer.data)

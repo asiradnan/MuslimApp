@@ -1,6 +1,7 @@
 from django.contrib import admin
-from . models import Task, CheckList
+from . models import Task, CheckList, Feedback
 
 # Register your models here.
 admin.site.register(Task)
 admin.site.register(CheckList)
+admin.site.register(Feedback)
