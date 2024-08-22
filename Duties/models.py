@@ -44,6 +44,9 @@ class Feedback(models.Model):
     book = models.CharField(max_length=150)
     number = models.PositiveIntegerField()
 
+    def __str__(self):
+        return f"{self.sender.first_name} on {self.number}, {self.book}"
+
 
 
 

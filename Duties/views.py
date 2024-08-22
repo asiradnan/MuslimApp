@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Task, CheckList, Feedback
-from Leaderboards.models import PointTable, FardPercent
+from Leaderboards.models import PointTable
 from .serializers import TaskSerializer, ChecklistSerializer, FeedbackSerializer
 from rest_framework import status
 from django.utils import timezone
@@ -10,7 +10,7 @@ from django.utils import timezone
 
 def fard_percent_calc(user):
     muslim = user.muslim
-    tasks_in_checklist = CheckList.objects.filter(user=user, date=timezone.now().date()).values_list('task', flat=True)
+    tasks_in_checklist = CheckList.objects.filter(user=user, date=timezone.now().date(),task__type="fard")
     if muslim.is_male:
         if muslim.is_married:
             objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age, type="fard")
@@ -21,7 +21,22 @@ def fard_percent_calc(user):
             objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age, type="fard")
         else:
             objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
-    return len(tasks_in_checklist)/len(objects)*100
+    return len(tasks_in_checklist)/max(1,len(objects))*100
+
+def sunnah_percent_calc(user):
+    muslim = user.muslim
+    tasks_in_checklist = CheckList.objects.filter(user=user, date=timezone.now().date(),task__type="sunnah")
+    if muslim.is_male:
+        if muslim.is_married:
+            objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age, type="sunnah")
+        else:
+            objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age, type="sunnah")
+    else:
+        if muslim.is_married:
+            objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age, type="sunnah")
+        else:
+            objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age, type="sunnah")
+    return len(tasks_in_checklist)/max(1,len(objects))*100
 
 @api_view(['GET'])
 def task_list(request):
@@ -36,7 +51,7 @@ def task(request,id):
         task = Task.objects.get(id=id)
         serializer = TaskSerializer(task, many=False)
         return Response(serializer.data)
-
+    
 @api_view(["GET"])
 def mytask(request):
     if request.user.is_authenticated:
@@ -53,7 +68,8 @@ def mytask(request):
             else:
                 objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
         serializer = TaskSerializer(objects, many = True)
-        data = {"tasks":serializer.data,"Current_Fard_Percent":fard_percent_calc(request.user)}
+        points,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
+        data = {"tasks":serializer.data,"Current_Fard_Percent":points.fard_percent,"Current_Sunnah_Percent":points.sunnah_percent,"Current_Nafl_Points": points.nafl_points}
         return Response(data)
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
@@ -63,19 +79,24 @@ def done(request, id):
     if request.user.is_authenticated:
         task = Task.objects.get(id=id)
         taskcheck,ok = CheckList.objects.get_or_create(task=task,user=request.user,date=timezone.now().date())
-        if ok==False: 
+        if ok == False: 
             taskcheck.frequency+=1
             taskcheck.save()
+            points = PointTable.objects.get(user=request.user,date=timezone.now().date()) 
+        else :
+            points = PointTable.objects.create(user=request.user,date=timezone.now().date()) 
         if task.type == "fard":
-            fard,ok = FardPercent.objects.get_or_create(user=request.user,date=timezone.now().date()) 
-            fard.percent = fard_percent_calc(request.user)
-            fard.save()
-            return Response({"Current_Fard_Percent":str(fard.percent)})
+            points.fard_percent = fard_percent_calc(request.user)
+            points.save()
+            return Response({"Current_Fard_Percent":str(points.fard_percent)})
+        elif task.type == "sunnah":
+            points.sunnah_percent = sunnah_percent_calc(request.user)
+            points.save()
+            return Response({"Current_Sunnah_Percent":points.sunnah_percent})
         else: 
-            pointobject,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
-            pointobject.points+=task.points
-            pointobject.save()
-        return Response({"Success":"Completed the task"})
+            points.nafl_points+=task.points
+            points.save()
+            return Response({"Current_Nafl_Points":str(points.nafl_points)})
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
