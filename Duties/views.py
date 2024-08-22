@@ -7,6 +7,22 @@ from rest_framework import status
 from django.utils import timezone
 
 
+
+def fard_percent_calc(user):
+    muslim = user.muslim
+    tasks_in_checklist = CheckList.objects.filter(user=user, date=timezone.now().date()).values_list('task', flat=True)
+    if muslim.is_male:
+        if muslim.is_married:
+            objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age, type="fard")
+        else:
+            objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
+    else:
+        if muslim.is_married:
+            objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age, type="fard")
+        else:
+            objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
+    return len(tasks_in_checklist)/len(objects)*100
+
 @api_view(['GET'])
 def task_list(request):
     if request.method == 'GET':
@@ -37,7 +53,8 @@ def mytask(request):
             else:
                 objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
         serializer = TaskSerializer(objects, many = True)
-        return Response(serializer.data)
+        data = {"tasks":serializer.data,"Current_Fard_Percent":fard_percent_calc(request.user)}
+        return Response(data)
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
 
@@ -51,19 +68,7 @@ def done(request, id):
             taskcheck.save()
         if task.type == "fard":
             fard,ok = FardPercent.objects.get_or_create(user=request.user,date=timezone.now().date()) 
-            muslim = request.user.muslim
-            tasks_in_checklist = CheckList.objects.filter(user=request.user, date=timezone.now().date()).values_list('task', flat=True)
-            if muslim.is_male:
-                if muslim.is_married:
-                    objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age, type="fard")
-                else:
-                    objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
-            else:
-                if muslim.is_married:
-                    objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age, type="fard")
-                else:
-                    objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
-            fard.percent = len(tasks_in_checklist)/len(objects)*100
+            fard.percent = fard_percent_calc(request.user)
             fard.save()
             return Response({"Current_Fard_Percent":str(fard.percent)})
         else: 
