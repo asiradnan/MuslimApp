@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Task, CheckList, Feedback
+from Leaderboards.models import PointTable
 from .serializers import TaskSerializer, ChecklistSerializer, FeedbackSerializer
 from rest_framework import status
 from django.utils import timezone
@@ -46,8 +47,11 @@ def done(request, id):
         task = Task.objects.get(id=id)
         taskcheck,ok = CheckList.objects.get_or_create(task=task,user=request.user,date=timezone.now().date())
         if ok==False: 
-            taskcheck.freqency+=1
+            taskcheck.frequency+=1
             taskcheck.save()
+        pointobject,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
+        pointobject.points+=task.points
+        pointobject.save()
         return Response({"Success":"Completed the task"})
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
