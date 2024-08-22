@@ -16,6 +16,7 @@ class Task(models.Model):
     for_married = models.BooleanField()
     for_unmarried = models.BooleanField()
     points = models.IntegerField()
+    priority = models.IntegerField()
 
     def __str__(self):
         return self.title

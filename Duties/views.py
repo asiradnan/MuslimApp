@@ -27,14 +27,14 @@ def mytask(request):
         tasks_in_checklist = CheckList.objects.filter(user=request.user, date=timezone.now().date()).values_list('task', flat=True)
         if muslim.is_male:
             if muslim.is_married:
-                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
+                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
             else:
-                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
+                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
         else:
             if muslim.is_married:
-                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
+                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
             else:
-                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist)
+                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
         serializer = TaskSerializer(objects, many = True)
         return Response(serializer.data)
     else: 
