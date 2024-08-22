@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Task, CheckList, Feedback
 from Leaderboards.models import PointTable
+from Leaderboards.serializers import PointTableSerializer
 from .serializers import TaskSerializer, ChecklistSerializer, FeedbackSerializer
 from rest_framework import status
 from django.utils import timezone
@@ -122,9 +123,13 @@ def feedback(request):
             return Response({"Success":"Feedback received!"})
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
-
-
-
+@api_view(["GET"])
+def get_history(request):
+    if request.user.is_authenticated:
+        objects = PointTable.objects.filter(user=request.user) 
+        serializer = PointTableSerializer(objects,many = True)
+        return Response(serializer.data)
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
 
 
 
