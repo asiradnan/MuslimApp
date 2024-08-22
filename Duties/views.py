@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Task, CheckList, Feedback
-from Leaderboards.models import PointTable
+from Leaderboards.models import PointTable, FardPercent
 from .serializers import TaskSerializer, ChecklistSerializer, FeedbackSerializer
 from rest_framework import status
 from django.utils import timezone
@@ -49,9 +49,27 @@ def done(request, id):
         if ok==False: 
             taskcheck.frequency+=1
             taskcheck.save()
-        pointobject,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
-        pointobject.points+=task.points
-        pointobject.save()
+        if task.type == "fard":
+            fard,ok = FardPercent.objects.get_or_create(user=request.user,date=timezone.now().date()) 
+            muslim = request.user.muslim
+            tasks_in_checklist = CheckList.objects.filter(user=request.user, date=timezone.now().date()).values_list('task', flat=True)
+            if muslim.is_male:
+                if muslim.is_married:
+                    objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age, type="fard")
+                else:
+                    objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
+            else:
+                if muslim.is_married:
+                    objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age, type="fard")
+                else:
+                    objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age, type="fard")
+            fard.percent = len(tasks_in_checklist)/len(objects)*100
+            fard.save()
+            return Response({"Current_Fard_Percent":str(fard.percent)})
+        else: 
+            pointobject,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
+            pointobject.points+=task.points
+            pointobject.save()
         return Response({"Success":"Completed the task"})
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)

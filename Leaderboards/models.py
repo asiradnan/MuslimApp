@@ -6,6 +6,11 @@ class PointTable(models.Model):
     date = models.DateField()
     points = models.IntegerField(default=0)
 
+class FardPercent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    percent = models.FloatField(default=0)
+
 class TrophyTable(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length = 200)
