@@ -82,9 +82,7 @@ def done(request, id):
         if ok == False: 
             taskcheck.frequency+=1
             taskcheck.save()
-            points = PointTable.objects.get(user=request.user,date=timezone.now().date()) 
-        else :
-            points = PointTable.objects.create(user=request.user,date=timezone.now().date()) 
+        points,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
         if task.type == "fard":
             points.fard_percent = fard_percent_calc(request.user)
             points.save()
