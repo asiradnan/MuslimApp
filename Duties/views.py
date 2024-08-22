@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from .models import Task, CheckList, Feedback
 from Leaderboards.models import PointTable
 from Leaderboards.serializers import PointTableSerializer
-from .serializers import TaskSerializer, ChecklistSerializer, FeedbackSerializer
+from .serializers import TaskSerializer, FeedbackSerializer, TaskSerializer2
 from rest_framework import status
 from django.utils import timezone
 
@@ -99,18 +99,21 @@ def done(request, id):
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
-@api_view(['GET'])
-def myhistory(request):
+@api_view(["GET"])
+def get_history(request):
     if request.user.is_authenticated:
-        objects = CheckList.objects.filter(user = request.user)
-        serializer = ChecklistSerializer(objects,many = True)
-        data = {}
-        for item in serializer.data:
-            if item['date'] in data:
-                data[item['date']].append(item)
-            else:
-                data[item['date']]=[item]
-        return Response(data)
+        objects = PointTable.objects.filter(user=request.user) 
+        print(objects)
+        serializer = PointTableSerializer(objects,many = True)
+        return Response(serializer.data)
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
+def history_detail(request,date):
+    if request.user.is_authenticated:
+        objects = CheckList.objects.filter(user = request.user,date=date).select_related('task').values('task__id', 'task__title','task__detail','task__type')
+        serializer = TaskSerializer2(objects,many = True)
+        return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
@@ -123,13 +126,7 @@ def feedback(request):
             return Response({"Success":"Feedback received!"})
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
-@api_view(["GET"])
-def get_history(request):
-    if request.user.is_authenticated:
-        objects = PointTable.objects.filter(user=request.user) 
-        serializer = PointTableSerializer(objects,many = True)
-        return Response(serializer.data)
-    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
 
 
 

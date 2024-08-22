@@ -8,7 +8,7 @@ task_type= [
 ]
 class Task(models.Model):
     title = models.CharField(max_length=150)
-    detail = models.CharField(max_length=300) #name
+    detail = models.CharField(max_length=300) 
     type=models.CharField(choices=task_type,max_length=25)
     for_male = models.BooleanField()
     for_female = models.BooleanField()
