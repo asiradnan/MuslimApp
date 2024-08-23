@@ -143,12 +143,6 @@ def feedback(request):
             x.save()
             return Response({"Success":"Feedback received!"})
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
-    
-
-
-
-
-
 
 
 

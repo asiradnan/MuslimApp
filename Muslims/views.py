@@ -74,4 +74,22 @@ def user_detail(request):
     else:
         return Response({"Success":"You are not logged in"},status = status.HTTP_401_UNAUTHORIZED)
     
+
+@api_view(['POST'])
+def change_email(request):
+    if request.user.is_authenticated:
+        user = request.user
+        user.email = request.data["email"]
+        user.save()
+        return Response({"Success":"Email Changed"})
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def change_password(request):
+    if request.user.is_authenticated:
+        user = request.user
+        user.set_password(request.data["password"])
+        return Response({"Success":"Password Changed"})
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+    
         
