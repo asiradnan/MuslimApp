@@ -91,5 +91,18 @@ def change_password(request):
         user.set_password(request.data["password"])
         return Response({"Success":"Password Changed"})
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(["POST"])
+def update_profile(request):
+    if request.user.is_authenticated:
+        user = request.user
+        userserializer = UserSerializer(user, data=request.data, partial=True)
+        muslimserializer = MuslimSerializer(user.muslim, data=request.data, partial=True)
+        if userserializer.is_valid() and muslimserializer.is_valid():
+            userserializer.save()
+            muslimserializer.save()
+            return Response({"Success: Profile Updated Successfully!"})
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
     
         
