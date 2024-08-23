@@ -103,7 +103,6 @@ def done(request, id):
 def get_history(request):
     if request.user.is_authenticated:
         objects = PointTable.objects.filter(user=request.user) 
-        print(objects)
         serializer = PointTableSerializer(objects,many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
@@ -113,6 +112,25 @@ def history_detail(request,date):
     if request.user.is_authenticated:
         objects = CheckList.objects.filter(user = request.user,date=date).select_related('task').values('task__id', 'task__title','task__detail','task__type')
         serializer = TaskSerializer2(objects,many = True)
+        return Response(serializer.data)
+    return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
+def history_detail_incomplete(request,date):
+    if request.user.is_authenticated:
+        muslim = request.user.muslim
+        tasks_in_checklist = CheckList.objects.filter(user=request.user, date=date).values_list('task', flat=True)
+        if muslim.is_male:
+            if muslim.is_married:
+                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+            else:
+                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+        else:
+            if muslim.is_married:
+                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+            else:
+                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+        serializer = TaskSerializer(objects, many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
 
