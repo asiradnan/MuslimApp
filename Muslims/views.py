@@ -35,7 +35,7 @@ def register(request):
                 return Response({"Error":"Data error"})
         except:
             return Response({"Error":"Try better password"},status=status.HTTP_401_UNAUTHORIZED)
-    else: return Response({"Error":"Data error"})
+    else: return Response({"Error":"Data error"},status=status.HTTP_401_UNAUTHORIZED)
     return Response({"Success: Created Account Successfully!"})
 
 @api_view(['POST'])
