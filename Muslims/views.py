@@ -19,7 +19,7 @@ def list(request):
 @api_view(["POST"])
 def register(request):
     if User.objects.filter(username=request.data["username"]).exists():
-        return Response({"Error":"User exists"})
+        return Response({"Error":"User exists"},status=status.HTTP_409_CONFLICT)
     userserializer = UserSerializer(data=request.data)
     muslimserializer = MuslimSerializer(data=request.data)
     if userserializer.is_valid() and muslimserializer.is_valid():
