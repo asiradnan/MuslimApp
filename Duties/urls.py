@@ -12,6 +12,7 @@ urlpatterns = [
     path("done_old/<int:id>/<str:date>",views.done_old,name="done_old"),
     path("history_detail/<str:date>",views.history_detail,name="history_detail"),
     path("history_detail_incomplete/<str:date>",views.history_detail_incomplete,name="history_detail_incomplete"),
+    path("history_detail_late/<str:date>",views.history_detail_late,name="history_detail_late"),
     path("get_history",views.get_history,name="get_history"),
     path("feedback",views.feedback,name="feedback"),
 ]
