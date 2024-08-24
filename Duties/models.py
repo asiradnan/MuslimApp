@@ -46,6 +46,13 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.sender.first_name} on {self.number}, {self.book}"
+    
+class OldTaskCheckList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task_date = models.DateField() 
+    done_date = models.DateField()
+    frequency = models.PositiveIntegerField(default=1)
 
 
 

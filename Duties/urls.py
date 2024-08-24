@@ -9,6 +9,7 @@ urlpatterns = [
     
     path("mytask/",views.mytask,name="mytask"),
     path("done/<int:id>",views.done,name="done"),
+    path("done_old/<int:id>/<str:date>",views.done_old,name="done_old"),
     path("history_detail/<str:date>",views.history_detail,name="history_detail"),
     path("history_detail_incomplete/<str:date>",views.history_detail_incomplete,name="history_detail_incomplete"),
     path("get_history",views.get_history,name="get_history"),

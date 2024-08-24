@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Task, CheckList, Feedback
+from .models import Task, CheckList, Feedback, OldTaskCheckList
 from Leaderboards.models import PointTable
 from Leaderboards.serializers import PointTableSerializer
 from .serializers import TaskSerializer, FeedbackSerializer, TaskSerializer2
@@ -98,6 +98,18 @@ def done(request, id):
             return Response({"Current_Nafl_Points":str(points.nafl_points)})
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(["GET"])
+def done_old(request, id, date):
+    if request.user.is_authenticated:
+        task = Task.objects.get(id=id)
+        objects, ok = OldTaskCheckList.objects.get_or_create(user=request.user, task=task, task_date = date, done_date = timezone.now().date()) 
+        if ok == False: 
+            objects.frequency+=1
+            objects.save()
+        return Response({"Success":"Done bro"})
+    else: 
+        return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
 @api_view(["GET"])
 def get_history(request):
@@ -120,16 +132,17 @@ def history_detail_incomplete(request,date):
     if request.user.is_authenticated:
         muslim = request.user.muslim
         tasks_in_checklist = CheckList.objects.filter(user=request.user, date=date).values_list('task', flat=True)
+        tasks_in_oldchecklist = OldTaskCheckList.objects.filter(user=request.user, task_date=date).values_list('task', flat=True)
         if muslim.is_male:
             if muslim.is_married:
-                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).exclude(id__in = tasks_in_oldchecklist).order_by("priority")
             else:
-                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).exclude(id__in = tasks_in_oldchecklist).order_by("priority")
         else:
             if muslim.is_married:
-                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).exclude(id__in = tasks_in_oldchecklist).order_by("priority")
             else:
-                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).exclude(id__in = tasks_in_oldchecklist).order_by("priority")
         serializer = TaskSerializer(objects, many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
