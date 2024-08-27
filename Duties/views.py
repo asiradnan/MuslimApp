@@ -114,7 +114,7 @@ def done_old(request, id, date):
 @api_view(["GET"])
 def get_history(request):
     if request.user.is_authenticated:
-        objects = PointTable.objects.filter(user=request.user) 
+        objects = PointTable.objects.filter(user=request.user).order_by("-date")
         serializer = PointTableSerializer(objects,many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
