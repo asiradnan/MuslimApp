@@ -61,16 +61,21 @@ def mytask(request):
         if muslim.is_male:
             if muslim.is_married:
                 objects  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects2  = Task.objects.filter(for_male = True, for_married = True, min_age__lte = muslim.age).filter(id__in = tasks_in_checklist).order_by("priority")
             else:
                 objects  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects2  = Task.objects.filter(for_male = True, for_unmarried = True, min_age__lte = muslim.age).filter(id__in = tasks_in_checklist).order_by("priority")
         else:
             if muslim.is_married:
                 objects  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects2  = Task.objects.filter(for_female = True, for_married = True, min_age__lte = muslim.age).filter(id__in = tasks_in_checklist).order_by("priority")
             else:
                 objects  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).exclude(id__in = tasks_in_checklist).order_by("priority")
+                objects2  = Task.objects.filter(for_female = True, for_unmarried = True, min_age__lte = muslim.age).filter(id__in = tasks_in_checklist).order_by("priority")
         serializer = TaskSerializer(objects, many = True)
         points,ok = PointTable.objects.get_or_create(user=request.user,date=timezone.now().date()) 
-        data = {"tasks":serializer.data,"Current_Fard_Percent":points.fard_percent,"Current_Sunnah_Percent":points.sunnah_percent,"Current_Nafl_Points": points.nafl_points}
+        serializer2 = TaskSerializer(objects2, many = True)
+        data = {"tasks":serializer.data, "completed_tasks":serializer2.data, "Current_Fard_Percent":points.fard_percent,"Current_Sunnah_Percent":points.sunnah_percent,"Current_Nafl_Points": points.nafl_points}
         return Response(data)
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
@@ -154,6 +159,7 @@ def history_detail_incomplete(request,date):
         serializer = TaskSerializer(objects, many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(['POST'])
 def feedback(request):
