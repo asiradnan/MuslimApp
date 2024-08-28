@@ -5,7 +5,7 @@ from .models import Task,CheckList,Feedback
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Task
-        fields = ["id","title","detail","type","points"]
+        fields = ["id","title","detail","type","points","priority"]
 
 class TaskSerializer2(serializers.Serializer):
     task__id = serializers.IntegerField()
