@@ -139,7 +139,7 @@ def done_old(request, id, date):
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
     
 @api_view(["GET"])
-def undo_compensate(request, id, date):
+def undo_old(request, id, date):
     if request.user.is_authenticated:
         task = Task.objects.get(id=id)
         taskcheck = OldTaskCheckList.objects.get(task=task,user=request.user,task_date=date)
