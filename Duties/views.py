@@ -142,7 +142,7 @@ def compensate(request, id, date):
 def undo_compensate(request, id, date):
     if request.user.is_authenticated:
         task = Task.objects.get(id=id)
-        taskcheck = OldTaskCheckList.objects.get(task=task,user=request.user,date=date)
+        taskcheck = OldTaskCheckList.objects.get(task=task,user=request.user,task_date=date)
         taskcheck.delete()
         return Response({"Success":"Done"})
     else: 
