@@ -149,7 +149,7 @@ def get_history(request):
 @api_view(['GET'])
 def history_detail(request,date):
     if request.user.is_authenticated:
-        objects = CheckList.objects.filter(user = request.user,date=date).select_related('task').values('task__id', 'task__title','task__detail','task__type')
+        objects = CheckList.objects.filter(user = request.user,date=date).select_related('task').values('task__id', 'task__title','task__detail','task__type','task__priority')
         serializer = TaskSerializer2(objects,many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
@@ -157,7 +157,7 @@ def history_detail(request,date):
 @api_view(['GET'])
 def history_detail_late(request,date):
     if request.user.is_authenticated:
-        objects = OldTaskCheckList.objects.filter(user = request.user,task_date=date).select_related('task').values('task__id', 'task__title','task__detail','task__type')
+        objects = OldTaskCheckList.objects.filter(user = request.user,task_date=date).select_related('task').values('task__id', 'task__title','task__detail','task__type','task__priority')
         serializer = TaskSerializer2(objects,many = True)
         return Response(serializer.data)
     return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
