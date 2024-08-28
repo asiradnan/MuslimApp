@@ -103,6 +103,28 @@ def done(request, id):
             return Response({"Current_Nafl_Points":str(points.nafl_points)})
     else: 
         return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
+    
+@api_view(["GET"])
+def undo(request, id):
+    if request.user.is_authenticated:
+        task = Task.objects.get(id=id)
+        taskcheck = CheckList.objects.get(task=task,user=request.user,date=timezone.now().date())
+        points = PointTable.objects.get(user=request.user,date=timezone.now().date()) 
+        taskcheck.delete()
+        if task.type == "fard":
+            points.fard_percent = fard_percent_calc(request.user)
+            points.save()
+            return Response({"Current_Fard_Percent":str(points.fard_percent)})
+        elif task.type == "sunnah":
+            points.sunnah_percent = sunnah_percent_calc(request.user)
+            points.save()
+            return Response({"Current_Sunnah_Percent":points.sunnah_percent})
+        else: 
+            points.nafl_points+=task.points
+            points.save()
+            return Response({"Current_Nafl_Points":str(points.nafl_points)})
+    else: 
+        return Response({"Error":"Please Log In first!"},status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(["GET"])
 def done_old(request, id, date):
