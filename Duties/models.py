@@ -34,7 +34,7 @@ class References(models.Model):
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
     book = models.CharField(max_length=150)
     number = models.PositiveIntegerField()
-    is_accepted = models.BooleanField(default=False)
+
 
     def __str__(self):
         return f"{self.book}, {self.number}"
@@ -44,6 +44,7 @@ class Feedback(models.Model):
     detail = models.CharField(max_length=1000)
     book = models.CharField(max_length=150)
     number = models.CharField(max_length=100)
+    is_accepted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.sender.first_name} on {self.number}, {self.book}"
