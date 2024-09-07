@@ -42,7 +42,7 @@ class References(models.Model):
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
     book = models.CharField(max_length=50, choices=hadiths)
     number = models.PositiveIntegerField()
-
+    hadith = models.CharField(max_length=500, default="")
 
     def __str__(self):
         return f"{self.book}, {self.number}"
@@ -51,6 +51,7 @@ class Quran_References(models.Model):
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
     surah = models.CharField(max_length=50)
     number = models.PositiveIntegerField()
+    ayah = models.CharField(max_length=500, default="")
 
 
     def __str__(self):
