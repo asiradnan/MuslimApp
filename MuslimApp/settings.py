@@ -4,8 +4,8 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-3asl3bhw2w55i780$@$3z-f_2d#6ckab2pex@pmv91me6p_zzl'
 
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+DEBUG = False
+ALLOWED_HOSTS = ["muslim.asiradnan.com","www.muslim.asiradnan.com"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,11 +65,11 @@ WSGI_APPLICATION = 'MuslimApp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER':'postgres',
-        'PASSWORD': 'aGoPpBDgIGlcHrzhnZwLKcPryllkFHhR',
-        'HOST': 'viaduct.proxy.rlwy.net',
-        'PORT': '46568'
+        'NAME': 'muslimappDB',
+	'USER': 'postgres',
+	'HOST':'127.0.0.1',
+	'PASSWORD':'root',
+	'PORT':'5432'
     }
 }
 
@@ -99,5 +99,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = '/var/www/muslimapp_staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

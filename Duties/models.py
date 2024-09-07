@@ -30,14 +30,31 @@ class CheckList(models.Model):
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name + " : " + self.task.title
 
+hadiths = [
+    ("Bukhari","Bukhari"),
+    ("Muslim","Muslim"),
+    ("Abu Dawud","Abu Dawud"),
+    ("Tirmidhi","Tirmidhi"),
+    ("Nasa'i","Nasa'i"),
+    ("Ibn Majah","Ibn Majah")
+]
 class References(models.Model):
     taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
-    book = models.CharField(max_length=150)
+    book = models.CharField(max_length=50, choices=hadiths)
     number = models.PositiveIntegerField()
 
 
     def __str__(self):
         return f"{self.book}, {self.number}"
+
+class Quran_References(models.Model):
+    taskID = models.ForeignKey(Task, on_delete=models.CASCADE)
+    surah = models.CharField(max_length=50)
+    number = models.PositiveIntegerField()
+
+
+    def __str__(self):
+        return f"{self.surah}, {self.number}"
 
 class Feedback(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
