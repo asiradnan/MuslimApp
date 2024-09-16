@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Task,CheckList,Feedback
+from .models import Task,CheckList,Feedback, References, Quran_References
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -18,3 +18,13 @@ class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
         fields = ["detail","book","number"]
+
+class ReferencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = References
+        fields = ["book","number","hadith"]
+
+class Quran_ReferencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quran_References
+        fields = ["surah","number","ayah"]

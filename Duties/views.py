@@ -1,9 +1,9 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Task, CheckList, Feedback, OldTaskCheckList
+from .models import Task, CheckList, Feedback, OldTaskCheckList, Quran_References, References
 from Leaderboards.models import PointTable
 from Leaderboards.serializers import PointTableSerializer
-from .serializers import TaskSerializer, FeedbackSerializer, TaskSerializer2
+from .serializers import TaskSerializer, FeedbackSerializer, TaskSerializer2, ReferencesSerializer, Quran_ReferencesSerializer
 from rest_framework import status
 from django.utils import timezone
 
@@ -48,11 +48,20 @@ def task_list(request):
     
 @api_view(['GET'])
 def task(request,id):
-    if request.method == 'GET':
-        task = Task.objects.get(id=id)
-        serializer = TaskSerializer(task, many=False)
-        return Response(serializer.data)
+    task = Task.objects.get(id=id)
+    serializer = TaskSerializer(task, many=False)
+    return Response(serializer.data)
     
+@api_view(['GET'])
+def task_ref(request,id):
+    task = Task.objects.get(id=id)
+    references = References.objects.filter(taskID = task)
+    Qreferences = Quran_References.objects.filter(taskID = task)
+    serializer = TaskSerializer(task, many=False)
+    ref_serializer = ReferencesSerializer(references, many = True)
+    Qref_serializer = Quran_ReferencesSerializer(Qreferences, many = True)
+    return Response({"quran_references":Qref_serializer.data,"hadith_references":ref_serializer.data})
+
 @api_view(["GET"])
 def mytask(request):
     if request.user.is_authenticated:
